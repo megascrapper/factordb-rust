@@ -46,7 +46,7 @@ pub struct Number {
 impl Number {
     /// Sends a GET request to the FactorDB API to query the given number.
     ///
-    /// If you are planning on making multiple requests, it is best to use [`Self::with_client()`]
+    /// If you are planning on making multiple requests, it is best to use [`Self::with_client_blocking()`]
     /// instead and reuse the client, taking advantage of keep-alive connection pooling.
     /// ([Learn more](https://docs.rs/reqwest/0.11.10/reqwest/blocking/index.html#making-a-get-request))
     ///
@@ -88,7 +88,7 @@ impl Number {
 
     /// Sends a GET request to the FactorDB API to query the given number.
     ///
-    /// If you are planning on making multiple requests, it is best to use [`Self::with_client_async()`]
+    /// If you are planning on making multiple requests, it is best to use [`Self::with_client()`]
     /// instead and reuse the client, taking advantage of keep-alive connection pooling.
     /// ([Learn more](https://docs.rs/reqwest/0.11.10/reqwest/index.html#making-a-get-request))
     ///
