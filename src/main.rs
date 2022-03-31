@@ -22,7 +22,7 @@ struct Args {
 
 fn main() {
     let args = Args::parse();
-    match Number::get(args.number.clone()) {
+    match Number::get_blocking(args.number.clone()) {
         Ok(num) => {
             if args.print_factors {
                 for f in num.factor_list() {

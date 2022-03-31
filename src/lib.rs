@@ -4,7 +4,7 @@
 //! ```
 //! use factordb::Number;
 //! # fn main() {
-//!   let num = Number::get(36).unwrap();
+//!   let num = Number::get_blocking(36).unwrap();
 //!   println!("36 = {}", num);
 //!
 //!   let mut product = BigInt::from(1);
@@ -16,7 +16,8 @@
 //! ```
 //!
 //! # Crate features
-//! - **async** - Enables asynchronous methods in `Number`
+//! - **blocking** - Enables blocking alternative to [`Number::get()`] and [`Number::with_client()`]
+//! which does not require async runtime
 
 #![warn(missing_docs)]
 
@@ -55,8 +56,9 @@ impl Number {
     ///
     /// # Panics
     /// This function cannot be executed in an async runtime, as per [`reqwest::blocking`] restriction.
-    pub fn get<T: Display>(number: T) -> Result<Self, FactorDbError> {
-        Self::with_client(number, reqwest::blocking::Client::new())
+    #[cfg(feature = "blocking")]
+    pub fn get_blocking<T: Display>(number: T) -> Result<Self, FactorDbError> {
+        Self::with_client_blocking(number, reqwest::blocking::Client::new())
     }
 
     /// Sends a GET request to the FactorDB API to query the given number, using a supplied [`reqwest::blocking::Client`].
@@ -67,7 +69,8 @@ impl Number {
     ///
     /// # Panics
     /// This function cannot be executed in an async runtime, as per [`reqwest::blocking`] restriction.
-    pub fn with_client<T: Display>(
+    #[cfg(feature = "blocking")]
+    pub fn with_client_blocking<T: Display>(
         number: T,
         client: reqwest::blocking::Client,
     ) -> Result<Self, FactorDbError> {
@@ -92,9 +95,8 @@ impl Number {
     /// # Errors
     /// Returns a [`FactorDbError`] if the number is invalid or there is something wrong in the
     /// request.
-    #[cfg(feature = "async")]
-    pub async fn get_async<T: Display>(number: T) -> Result<Self, FactorDbError> {
-        Self::with_client_async(number, reqwest::Client::new()).await
+    pub async fn get<T: Display>(number: T) -> Result<Self, FactorDbError> {
+        Self::with_client(number, reqwest::Client::new()).await
     }
 
     /// Sends a GET request to the FactorDB API to query the given number, using a supplied [`reqwest::Client`].
@@ -106,8 +108,7 @@ impl Number {
     /// # Errors
     /// Returns a [`FactorDbError`] if the number is invalid or there is something wrong in the
     /// request.
-    #[cfg(feature = "async")]
-    pub async fn with_client_async<T: Display>(
+    pub async fn with_client<T: Display>(
         number: T,
         client: reqwest::Client,
     ) -> Result<Self, FactorDbError> {
@@ -256,12 +257,12 @@ mod tests {
 
     #[test]
     fn get_42() {
-        let num = Number::get(42).unwrap();
+        let num = Number::get_blocking(42).unwrap();
         println!("{}", num);
     }
 
     fn test_exponents() {
-        let num = Number::get(36).unwrap();
+        let num = Number::get_blocking(36).unwrap();
         let mut product = BigInt::from(1);
         for f in num.factor_list().iter() {
             product *= f;
