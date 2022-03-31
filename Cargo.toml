@@ -2,6 +2,12 @@
 name = "factordb"
 version = "0.1.0"
 edition = "2021"
+description = "Rust binding for FactorDB"
+homepage = "https://github.com/megascrapper/factordb-rust"
+repository = "https://github.com/megascrapper/factordb-rust"
+readme = "README.md"
+categories = ["api-bindings", "mathematics", "command-line-utilities"]
+keywords = ["factordb", "prime-numbers", "factorization"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
