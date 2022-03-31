@@ -19,7 +19,6 @@
 
 mod utils;
 
-use std::cmp::Ordering;
 use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
 
@@ -32,7 +31,7 @@ const ENDPOINT: &str = "http://factordb.com/api";
 
 /// A number entry in FactorDB. Contains the number itself, its status in the database as well as its
 /// factors.
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Number {
     #[serde(deserialize_with = "deserialize_id")]
     id: BigInt,
@@ -182,29 +181,9 @@ impl Display for Number {
     }
 }
 
-impl PartialEq for Number {
-    fn eq(&self, other: &Self) -> bool {
-        self.id() == other.id()
-    }
-}
-
-impl Eq for Number {}
-
-impl Ord for Number {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.id().cmp(&other.id())
-    }
-}
-
-impl PartialOrd for Number {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
 /// A struct representing a factor with a unique base, along with the exponent (i.e. how many times
 /// the factor is repeated).
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Factor(#[serde(deserialize_with = "deserialize_string_to_bigint")] BigInt, #[serde(deserialize_with = "deserialize_u64_to_bigint")] BigInt);
 
 impl Factor {
@@ -226,7 +205,7 @@ impl Display for Factor {
 }
 
 /// The status of a number in FactorDB.
-#[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum NumberStatus {
     /// Composite, no factors known (C)
     #[serde(rename = "C")]
