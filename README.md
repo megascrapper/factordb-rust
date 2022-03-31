@@ -33,7 +33,8 @@ factordb <NUMBER>
 ## Feature wishlist
 - [ ] Async mode
 - [ ] More testing
-- [ ] A method to get unique factors
+- [ ] get the queried number as BigInt
+- [x] A method to get unique factors
 - [x] Have the internal representation be in native bigint instead of a String (may require breaking change).
 
 ## License

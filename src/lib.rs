@@ -20,6 +20,7 @@
 mod utils;
 
 use std::cmp::Ordering;
+use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
 
 use num_bigint::BigInt;
@@ -40,14 +41,14 @@ pub struct Number {
 }
 
 impl Number {
-        /// Sends a GET request to the FactorDB API to query the given number.
+    /// Sends a GET request to the FactorDB API to query the given number.
     ///
     /// If you are planning on making multiple requests, it is best to use [`Self::with_client()`]
     /// instead and reuse the client, taking advantage of keep-alive connection pooling.
     /// ([Learn more](https://docs.rs/reqwest/0.11.10/reqwest/blocking/index.html#making-a-get-request))
     ///
     /// # Errors
-    /// Returns an [`FactorDbError`] if the number is invalid or there is something wrong in the
+    /// Returns a [`FactorDbError`] if the number is invalid or there is something wrong in the
     /// request.
     ///
     /// # Panics
@@ -59,7 +60,7 @@ impl Number {
     /// Sends a GET request to the FactorDB API to query the given number, using a supplied [`reqwest::blocking::Client`].
     ///
     /// # Errors
-    /// Returns an [`FactorDbError`] if the number is invalid or there is something wrong in the
+    /// Returns a [`FactorDbError`] if the number is invalid or there is something wrong in the
     /// request.
     ///
     /// # Panics
@@ -72,6 +73,44 @@ impl Number {
         let response = client.get(url).send()?;
         if response.status().is_success() {
             match response.json() {
+                Ok(n) => Ok(n),
+                Err(e) => Err(e.into()),
+            }
+        } else {
+            Err(FactorDbError::InvalidNumber)
+        }
+    }
+
+    /// Sends a GET request to the FactorDB API to query the given number.
+    ///
+    /// If you are planning on making multiple requests, it is best to use [`Self::with_client_async()`]
+    /// instead and reuse the client, taking advantage of keep-alive connection pooling.
+    /// ([Learn more](https://docs.rs/reqwest/0.11.10/reqwest/index.html#making-a-get-request))
+    ///
+    /// # Errors
+    /// Returns a [`FactorDbError`] if the number is invalid or there is something wrong in the
+    /// request.
+    pub async fn get_async<T: Display>(number: T) -> Result<Self, FactorDbError> {
+        Self::with_client_async(number, reqwest::Client::new()).await
+    }
+
+    /// Sends a GET request to the FactorDB API to query the given number, using a supplied [`reqwest::Client`].
+    ///
+    /// # Errors
+    /// Returns a [`FactorDbError`] if the number is invalid or there is something wrong in the
+    /// request.
+    ///
+    /// # Errors
+    /// Returns a [`FactorDbError`] if the number is invalid or there is something wrong in the
+    /// request.
+    pub async fn with_client_async<T: Display>(
+        number: T,
+        client: reqwest::Client,
+    ) -> Result<Self, FactorDbError> {
+        let url = format!("{}?query={}", ENDPOINT, number);
+        let response = client.get(url).send().await?;
+        if response.status().is_success() {
+            match response.json().await {
                 Ok(n) => Ok(n),
                 Err(e) => Err(e.into()),
             }
@@ -122,6 +161,15 @@ impl Number {
                 out.push(f.base());
                 e += 1;
             }
+        }
+        out
+    }
+
+    /// Returns a [`HashSet`] of unique factors of this number.
+    pub fn unique_factors(&self) -> HashSet<&BigInt> {
+        let mut out = HashSet::new();
+        for f in &self.factors {
+            out.insert(f.base());
         }
         out
     }
