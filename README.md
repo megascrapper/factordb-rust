@@ -22,6 +22,15 @@ cargo build
 factordb <NUMBER>
 ```
 
+### Options
+```
+    -h, --help             Print help information
+        --print-factors    Print all factors (including repeating ones) on each line
+    -V, --version          Print version information
+
+```
+
+
 
 ## License
 Licensed under either of

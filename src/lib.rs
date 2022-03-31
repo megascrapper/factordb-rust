@@ -7,7 +7,7 @@
 //!   let num = Number::get(36).unwrap();
 //!   println!("36 = {}", num);
 //!
-//!   let mut product = BigUint::from(1u32);
+//!   let mut product = BigInt::from(1);
 //!   for f in num.factor_list().iter() {
 //!       product *= f;
 //!   }
@@ -17,12 +17,16 @@
 
 #![warn(missing_docs)]
 
+mod utils;
+
 use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 
-use num_bigint::BigUint;
+use num_bigint::BigInt;
 use serde::{Deserialize, Serialize};
+
+use crate::utils::deserialize_id;
 
 const ENDPOINT: &str = "http://factordb.com/api";
 
@@ -30,15 +34,17 @@ const ENDPOINT: &str = "http://factordb.com/api";
 /// factors.
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Number {
+    #[serde(deserialize_with = "deserialize_id")]
     id: String,
     status: NumberStatus,
     factors: Vec<Factor>,
 }
 
 impl Number {
-    /// Returns the queried number as a [`BigUint`].
-    pub fn id(&self) -> BigUint {
-        BigUint::from_str(&self.id).unwrap()
+    /// Returns the FactorDB ID as a [`BigInt`]. In most cases it is the same as the number, but
+    /// both 0 and 1 has the ID of -1.
+    pub fn id(&self) -> BigInt {
+        BigInt::from_str(&self.id).unwrap()
     }
 
     /// Returns the number's status in FactorDB.
@@ -68,8 +74,8 @@ impl Number {
         self.status == NumberStatus::DefinitelyPrime
     }
 
-    /// Returns a vector [`BigUint`] containing the number's factors, with its exponents expanded.
-    pub fn factor_list(&self) -> Vec<BigUint> {
+    /// Returns a vector [`BigInt`] containing the number's factors, with its exponents expanded.
+    pub fn factor_list(&self) -> Vec<BigInt> {
         let mut out = vec![];
         for f in &self.factors {
             for _ in 0..f.1 {
@@ -105,9 +111,14 @@ impl Number {
     /// This function cannot be executed in an async runtime, as per [`reqwest::blocking`] restriction.
     pub fn with_client<T: Display>(number: T, client: reqwest::blocking::Client) -> Result<Self, FactorDbError> {
         let url = format!("{}?query={}", ENDPOINT, number);
-        match client.get(url).send()?.json() {
-            Ok(n) => Ok(n),
-            Err(e) => Err(e.into())
+        let response = client.get(url).send()?;
+        if response.status().is_success() {
+            match response.json() {
+                Ok(n) => Ok(n),
+                Err(e) => Err(e.into())
+            }
+        } else {
+            Err(FactorDbError::InvalidNumber)
         }
     }
 }
@@ -142,14 +153,14 @@ impl PartialOrd for Number {
 /// A struct representing a factor with a unique base, along with the exponent (i.e. how many times
 /// the factor is repeated).
 #[derive(Deserialize, Serialize, Debug, Clone)]
-pub struct Factor(String, u32);
+pub struct Factor(String, i32);
 
 impl Factor {
-    /// Returns the base as a [`BigUint`].
-    pub fn base(&self) -> BigUint { BigUint::from_str(&self.0).unwrap() }
+    /// Returns the base as a [`BigInt`].
+    pub fn base(&self) -> BigInt { BigInt::from_str(&self.0).unwrap() }
 
-    /// Returns the exponent as a [`BigUint`].
-    pub fn exponent(&self) -> BigUint { BigUint::from(self.1) }
+    /// Returns the exponent as a [`BigInt`].
+    pub fn exponent(&self) -> BigInt { BigInt::from(self.1) }
 }
 
 impl Display for Factor {
@@ -181,8 +192,9 @@ pub enum NumberStatus {
     #[serde(rename = "U")]
     Unknown,
     /// Just for "1" (Unit)
-    #[serde(rename = "Unit")]
     Unit,
+    /// Just for "0"
+    Zero,
     /// This number is not in database (N)
     #[serde(rename = "N")]
     NotInDatabase,
@@ -191,9 +203,12 @@ pub enum NumberStatus {
 /// Error type in this crate.
 #[derive(thiserror::Error, Debug)]
 pub enum FactorDbError {
-    /// Invalid number or request error
-    #[error("Invalid number or request error")]
+    /// Request error
+    #[error("Request error: {0}")]
     RequestError(#[from] reqwest::Error),
+    /// Invalid number
+    #[error("Invalid number")]
+    InvalidNumber
 }
 
 #[cfg(test)]
@@ -208,7 +223,7 @@ mod tests {
 
     fn test_exponents() {
         let num = Number::get(36).unwrap();
-        let mut product = BigUint::from(1u32);
+        let mut product = BigInt::from(1);
         for f in num.factor_list().iter() {
             product *= f;
         }
