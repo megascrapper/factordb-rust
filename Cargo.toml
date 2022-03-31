@@ -23,3 +23,6 @@ ansi_term = "0.12.1"
 
 [features]
 async = []
+
+[package.metadata.docs.rs]
+all-features = true

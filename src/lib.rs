@@ -14,6 +14,9 @@
 //!  assert_eq!(num.id(), product);
 //! # }
 //! ```
+//!
+//! # Crate features
+//! - **async** - Enables asynchronous methods in `Number`
 
 #![warn(missing_docs)]
 
@@ -89,6 +92,7 @@ impl Number {
     /// # Errors
     /// Returns a [`FactorDbError`] if the number is invalid or there is something wrong in the
     /// request.
+    #[cfg(feature = "async")]
     pub async fn get_async<T: Display>(number: T) -> Result<Self, FactorDbError> {
         Self::with_client_async(number, reqwest::Client::new()).await
     }
@@ -102,6 +106,7 @@ impl Number {
     /// # Errors
     /// Returns a [`FactorDbError`] if the number is invalid or there is something wrong in the
     /// request.
+    #[cfg(feature = "async")]
     pub async fn with_client_async<T: Display>(
         number: T,
         client: reqwest::Client,
@@ -118,8 +123,7 @@ impl Number {
         }
     }
 
-    /// Returns the FactorDB ID as a [`BigInt`]. In most cases it is the same as the number, but
-    /// both 0 and 1 has the ID of -1.
+    /// Returns the FactorDB ID as a [`BigInt`].
     pub fn id(&self) -> &BigInt {
         &self.id
     }
