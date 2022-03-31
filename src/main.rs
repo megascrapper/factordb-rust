@@ -1,3 +1,4 @@
+use std::process::exit;
 use clap::Parser;
 use ansi_term::Colour::Red;
 use factordb::Number;
@@ -26,6 +27,9 @@ fn main() {
                 }
             }
         },
-        Err(e) => eprintln!( "{} {}", Red.paint("error:"), e)
+        Err(e) => {
+            eprintln!("{} {}", Red.paint("error:"), e);
+            exit(1)
+        }
     }
 }
