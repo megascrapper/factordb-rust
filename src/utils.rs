@@ -1,6 +1,6 @@
-use std::fmt;
-use serde::{de, Deserializer};
 use serde::de::Unexpected;
+use serde::{de, Deserializer};
+use std::fmt;
 
 // https://stackoverflow.com/questions/37870428/convert-two-types-into-a-single-type-with-serde
 

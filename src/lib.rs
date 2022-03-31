@@ -109,13 +109,16 @@ impl Number {
     ///
     /// # Panics
     /// This function cannot be executed in an async runtime, as per [`reqwest::blocking`] restriction.
-    pub fn with_client<T: Display>(number: T, client: reqwest::blocking::Client) -> Result<Self, FactorDbError> {
+    pub fn with_client<T: Display>(
+        number: T,
+        client: reqwest::blocking::Client,
+    ) -> Result<Self, FactorDbError> {
         let url = format!("{}?query={}", ENDPOINT, number);
         let response = client.get(url).send()?;
         if response.status().is_success() {
             match response.json() {
                 Ok(n) => Ok(n),
-                Err(e) => Err(e.into())
+                Err(e) => Err(e.into()),
             }
         } else {
             Err(FactorDbError::InvalidNumber)
@@ -157,10 +160,14 @@ pub struct Factor(String, i32);
 
 impl Factor {
     /// Returns the base as a [`BigInt`].
-    pub fn base(&self) -> BigInt { BigInt::from_str(&self.0).unwrap() }
+    pub fn base(&self) -> BigInt {
+        BigInt::from_str(&self.0).unwrap()
+    }
 
     /// Returns the exponent as a [`BigInt`].
-    pub fn exponent(&self) -> BigInt { BigInt::from(self.1) }
+    pub fn exponent(&self) -> BigInt {
+        BigInt::from(self.1)
+    }
 }
 
 impl Display for Factor {
@@ -208,7 +215,7 @@ pub enum FactorDbError {
     RequestError(#[from] reqwest::Error),
     /// Invalid number
     #[error("Invalid number")]
-    InvalidNumber
+    InvalidNumber,
 }
 
 #[cfg(test)]
