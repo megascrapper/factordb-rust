@@ -1,6 +1,6 @@
 # factordb-rust
 
-Rust binding for [FactorDB](http://factordb.com/)
+Rust wrapper for [FactorDB](http://factordb.com/) API.
 
 Includes a library as well as a simple command line app.
 
@@ -16,6 +16,12 @@ git clone https://github.com/megascrapper/factordb-rust
 cd factordb-rust
 cargo build
 ```
+
+## Usage
+```
+factordb <NUMBER>
+```
+
 
 ## License
 Licensed under either of
