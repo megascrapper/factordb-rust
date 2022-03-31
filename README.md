@@ -30,7 +30,11 @@ factordb <NUMBER>
 
 ```
 
-
+## Feature wishlist
+- [ ] Async mode
+- [ ] More testing
+- [ ] A method to get unique factors
+- [ ] Have the internal representation be in native bigint instead of a String (may require breaking change).
 
 ## License
 Licensed under either of

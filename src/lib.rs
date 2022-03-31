@@ -21,12 +21,11 @@ mod utils;
 
 use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
-use std::str::FromStr;
 
 use num_bigint::BigInt;
 use serde::{Deserialize, Serialize};
 
-use crate::utils::deserialize_id;
+use crate::utils::{deserialize_id, deserialize_string_to_bigint, deserialize_u64_to_bigint};
 
 const ENDPOINT: &str = "http://factordb.com/api";
 
@@ -35,7 +34,7 @@ const ENDPOINT: &str = "http://factordb.com/api";
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Number {
     #[serde(deserialize_with = "deserialize_id")]
-    id: String,
+    id: BigInt,
     status: NumberStatus,
     factors: Vec<Factor>,
 }
@@ -43,8 +42,8 @@ pub struct Number {
 impl Number {
     /// Returns the FactorDB ID as a [`BigInt`]. In most cases it is the same as the number, but
     /// both 0 and 1 has the ID of -1.
-    pub fn id(&self) -> BigInt {
-        BigInt::from_str(&self.id).unwrap()
+    pub fn id(&self) -> &BigInt {
+        &self.id
     }
 
     /// Returns the number's status in FactorDB.
@@ -75,11 +74,13 @@ impl Number {
     }
 
     /// Returns a vector [`BigInt`] containing the number's factors, with its exponents expanded.
-    pub fn factor_list(&self) -> Vec<BigInt> {
+    pub fn factor_list(&self) -> Vec<&BigInt> {
         let mut out = vec![];
         for f in &self.factors {
-            for _ in 0..f.1 {
-                out.push(f.base())
+            let mut e = BigInt::from(0);
+            while &e < f.exponent() {
+                out.push(f.base());
+                e += 1;
             }
         }
         out
@@ -128,7 +129,7 @@ impl Number {
 
 impl Display for Number {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let factor_strings: Vec<String> = self.factors.iter().map(|f| format!("{}", f)).collect();
+        let factor_strings: Vec<String> = self.factors.iter().map(|f| f.to_string()).collect();
         write!(f, "{}", factor_strings.join(" + "))
     }
 }
@@ -156,17 +157,17 @@ impl PartialOrd for Number {
 /// A struct representing a factor with a unique base, along with the exponent (i.e. how many times
 /// the factor is repeated).
 #[derive(Deserialize, Serialize, Debug, Clone)]
-pub struct Factor(String, i32);
+pub struct Factor(#[serde(deserialize_with = "deserialize_string_to_bigint")] BigInt, #[serde(deserialize_with = "deserialize_u64_to_bigint")] BigInt);
 
 impl Factor {
     /// Returns the base as a [`BigInt`].
-    pub fn base(&self) -> BigInt {
-        BigInt::from_str(&self.0).unwrap()
+    pub fn base(&self) -> &BigInt {
+        &self.0
     }
 
     /// Returns the exponent as a [`BigInt`].
-    pub fn exponent(&self) -> BigInt {
-        BigInt::from(self.1)
+    pub fn exponent(&self) -> &BigInt {
+        &self.1
     }
 }
 
