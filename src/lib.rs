@@ -40,6 +40,46 @@ pub struct Number {
 }
 
 impl Number {
+        /// Sends a GET request to the FactorDB API to query the given number.
+    ///
+    /// If you are planning on making multiple requests, it is best to use [`Self::with_client()`]
+    /// instead and reuse the client, taking advantage of keep-alive connection pooling.
+    /// ([Learn more](https://docs.rs/reqwest/0.11.10/reqwest/blocking/index.html#making-a-get-request))
+    ///
+    /// # Errors
+    /// Returns an [`FactorDbError`] if the number is invalid or there is something wrong in the
+    /// request.
+    ///
+    /// # Panics
+    /// This function cannot be executed in an async runtime, as per [`reqwest::blocking`] restriction.
+    pub fn get<T: Display>(number: T) -> Result<Self, FactorDbError> {
+        Self::with_client(number, reqwest::blocking::Client::new())
+    }
+
+    /// Sends a GET request to the FactorDB API to query the given number, using a supplied [`reqwest::blocking::Client`].
+    ///
+    /// # Errors
+    /// Returns an [`FactorDbError`] if the number is invalid or there is something wrong in the
+    /// request.
+    ///
+    /// # Panics
+    /// This function cannot be executed in an async runtime, as per [`reqwest::blocking`] restriction.
+    pub fn with_client<T: Display>(
+        number: T,
+        client: reqwest::blocking::Client,
+    ) -> Result<Self, FactorDbError> {
+        let url = format!("{}?query={}", ENDPOINT, number);
+        let response = client.get(url).send()?;
+        if response.status().is_success() {
+            match response.json() {
+                Ok(n) => Ok(n),
+                Err(e) => Err(e.into()),
+            }
+        } else {
+            Err(FactorDbError::InvalidNumber)
+        }
+    }
+
     /// Returns the FactorDB ID as a [`BigInt`]. In most cases it is the same as the number, but
     /// both 0 and 1 has the ID of -1.
     pub fn id(&self) -> &BigInt {
@@ -84,46 +124,6 @@ impl Number {
             }
         }
         out
-    }
-
-    /// Sends a GET request to the FactorDB API to query the given number.
-    ///
-    /// If you are planning on making multiple requests, it is best to use [`Self::with_client()`]
-    /// instead and reuse the client, taking advantage of keep-alive connection pooling.
-    /// ([Learn more](https://docs.rs/reqwest/0.11.10/reqwest/blocking/index.html#making-a-get-request))
-    ///
-    /// # Errors
-    /// Returns an [`FactorDbError`] if the number is invalid or there is something wrong in the
-    /// request.
-    ///
-    /// # Panics
-    /// This function cannot be executed in an async runtime, as per [`reqwest::blocking`] restriction.
-    pub fn get<T: Display>(number: T) -> Result<Self, FactorDbError> {
-        Self::with_client(number, reqwest::blocking::Client::new())
-    }
-
-    /// Sends a GET request to the FactorDB API to query the given number, using a supplied [`reqwest::blocking::Client`].
-    ///
-    /// # Errors
-    /// Returns an [`FactorDbError`] if the number is invalid or there is something wrong in the
-    /// request.
-    ///
-    /// # Panics
-    /// This function cannot be executed in an async runtime, as per [`reqwest::blocking`] restriction.
-    pub fn with_client<T: Display>(
-        number: T,
-        client: reqwest::blocking::Client,
-    ) -> Result<Self, FactorDbError> {
-        let url = format!("{}?query={}", ENDPOINT, number);
-        let response = client.get(url).send()?;
-        if response.status().is_success() {
-            match response.json() {
-                Ok(n) => Ok(n),
-                Err(e) => Err(e.into()),
-            }
-        } else {
-            Err(FactorDbError::InvalidNumber)
-        }
     }
 }
 
