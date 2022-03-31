@@ -189,7 +189,10 @@ impl Display for Number {
 /// A struct representing a factor with a unique base, along with the exponent (i.e. how many times
 /// the factor is repeated).
 #[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub struct Factor(#[serde(deserialize_with = "deserialize_string_to_bigint")] BigInt, #[serde(deserialize_with = "deserialize_u64_to_bigint")] BigInt);
+pub struct Factor(
+    #[serde(deserialize_with = "deserialize_string_to_bigint")] BigInt,
+    #[serde(deserialize_with = "deserialize_u64_to_bigint")] BigInt,
+);
 
 impl Factor {
     /// Returns the base as a [`BigInt`].

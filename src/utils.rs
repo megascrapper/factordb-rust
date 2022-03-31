@@ -1,11 +1,10 @@
+use num_bigint::BigInt;
 use serde::de::Unexpected;
 use serde::{de, Deserializer};
 use std::fmt;
 use std::str::FromStr;
-use num_bigint::BigInt;
 
 // https://stackoverflow.com/questions/37870428/convert-two-types-into-a-single-type-with-serde
-
 
 struct DeserializeToBigIntVisitor;
 
