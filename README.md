@@ -7,7 +7,7 @@ Includes a library as well as a simple command line app.
 ## Installation
 ## Cargo
 ```
-cargo install factordb
+cargo install factordb --all-features
 ```
 
 ## Building from source
