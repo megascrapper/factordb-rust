@@ -19,21 +19,23 @@ cargo build
 
 ## Usage
 ```
-factordb <NUMBER>
-```
+USAGE:
+    factordb.exe [OPTIONS] <NUMBER>
 
-### Options
-```
-    -h, --help             Print help information
-        --print-factors    Print all factors (including repeating ones) on each line
-    -V, --version          Print version information
+ARGS:
+    <NUMBER>    Number to find its factor
 
+OPTIONS:
+    -h, --help                    Print help information
+        --print-factors           Print all factors (including repeating ones) on each line
+        --print-unique-factors    Print unique factors on each line
+    -V, --version                 Print version information
 ```
 
 ## Feature wishlist
-- [ ] Async mode
+- [x] Async mode
 - [ ] More testing
-- [ ] get the queried number as BigInt
+- [x] get the queried number as BigInt
 - [x] A method to get unique factors
 - [x] Have the internal representation be in native bigint instead of a String (may require breaking change).
 
