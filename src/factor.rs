@@ -27,7 +27,7 @@ impl Factor {
     }
 
     /// Iterate over the base by the exponent value.
-    pub fn iter<'f>(&'f self) -> Iter {
+    pub fn iter(&self) -> Iter {
         Iter {
             base: &self.0,
             remaining_exp: self.1.clone(),
@@ -114,7 +114,7 @@ mod tests {
             BigInt::from(1_000_000)
         );
         assert_eq!(
-            a_million.iter().map(|n| n.clone()).collect::<Vec<_>>(),
+            a_million.iter().cloned().collect::<Vec<_>>(),
             vec![
                 BigInt::from(10),
                 BigInt::from(10),
