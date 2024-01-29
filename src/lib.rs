@@ -179,19 +179,72 @@ pub enum FactorDbError {
 
 #[cfg(test)]
 mod tests {
+    use num_bigint::BigInt;
 
-    // #[test]
-    // fn get_42() {
-    //     let num = Number::get_blocking(42).unwrap();
-    //     println!("{}", num);
-    // }
+    use super::*;
 
-    // fn test_exponents() {
-    //     let num = Number::get_blocking(36).unwrap();
-    //     let mut product = BigInt::from(1);
-    //     for f in num.factor_list().iter() {
-    //         product *= f;
-    //     }
-    //     assert_eq!(num.id(), product);
-    // }
+    #[tokio::test]
+    async fn test_two_factors() {
+        let client = FactorDbClient::new();
+        let result = client.get(15).await.unwrap();
+        assert_eq!(vec![BigInt::from(3), BigInt::from(5)], result.into_factors_flattened())
+    }
+
+    #[tokio::test]
+    async fn test_repeating_factors() {
+        let client = FactorDbClient::new();
+        let result = client.get(100).await.unwrap();
+        assert_eq!(vec![BigInt::from(2), BigInt::from(2), BigInt::from(5), BigInt::from(5)], result.clone().into_factors_flattened());
+        assert_eq!(vec![BigInt::from(2), BigInt::from(5)], result.into_unique_factors());
+    }
+
+    #[tokio::test]
+    async fn test_prime() {
+        let client = FactorDbClient::new();
+        let result = client.get(17).await.unwrap();
+        let flatenned = result.clone().into_factors_flattened();
+        let unique = result.into_unique_factors();
+        assert_eq!(vec![BigInt::from(17)], flatenned);
+        assert_eq!(flatenned, unique);
+    }
+
+    #[tokio::test]
+    async fn test_invalid() {
+        let client = FactorDbClient::new();
+        let result = client.get("AAAAA").await;
+        assert!(result.is_err());
+    }
+
+    // blocking tests
+    #[test]
+    fn test_two_factors_blocking() {
+        let client = FactorDbBlockingClient::new();
+        let result = client.get(15).unwrap();
+        assert_eq!(vec![BigInt::from(3), BigInt::from(5)], result.into_factors_flattened())
+    }
+
+    #[test]
+    fn test_repeating_factors_blocking() {
+        let client = FactorDbBlockingClient::new();
+        let result = client.get(100).unwrap();
+        assert_eq!(vec![BigInt::from(2), BigInt::from(2), BigInt::from(5), BigInt::from(5)], result.clone().into_factors_flattened());
+        assert_eq!(vec![BigInt::from(2), BigInt::from(5)], result.into_unique_factors());
+    }
+
+    #[test]
+    fn test_prime_blocking() {
+        let client = FactorDbBlockingClient::new();
+        let result = client.get(17).unwrap();
+        let flatenned = result.clone().into_factors_flattened();
+        let unique = result.into_unique_factors();
+        assert_eq!(vec![BigInt::from(17)], flatenned);
+        assert_eq!(flatenned, unique);
+    }
+
+    #[test]
+    fn test_invalid_blocking() {
+        let client = FactorDbBlockingClient::new();
+        let result = client.get("AAAAA");
+        assert!(result.is_err());
+    }
 }

@@ -59,17 +59,21 @@ impl Number {
         self.factors.iter().map(|f| f.base()).collect()
     }
 
-    /// Converts `self` to a vector of unique factors of this number.
+    /// Converts `self` to a vector of unique factors of this number in ascending order.
     pub fn into_unique_factors(self) -> Vec<BigInt> {
-        self.factors
+        let mut factors: Vec<BigInt> = self.factors
             .into_iter()
             .map(|f| f.base().to_owned())
-            .collect()
+            .collect();
+        factors.sort_unstable();
+        factors
     }
 
-    /// Converts `self` to a vector of [`BigInt`] containing the number's factors, with its exponents expanded.
+    /// Converts `self` to a vector of [`BigInt`] containing the number's factors, with its exponents expanded in ascending order.
     pub fn into_factors_flattened(self) -> Vec<BigInt> {
-        self.factors.clone().into_iter().flatten().collect()
+        let mut factors: Vec<BigInt> = self.factors.clone().into_iter().flatten().collect();
+        factors.sort_unstable();
+        factors
     }
 }
 
