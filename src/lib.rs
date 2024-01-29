@@ -203,32 +203,33 @@ impl Number {
         self.status == NumberStatus::DefinitelyPrime
     }
 
-    /// Returns a vector [`BigInt`] containing the number's factors, with its exponents expanded.
-    pub fn factor_list(&self) -> Vec<&BigInt> {
-        let mut out = vec![];
-        for f in &self.factors {
-            let mut e = BigInt::from(0);
-            while &e < f.exponent() {
-                out.push(f.base());
-                e += 1;
-            }
-        }
-        out
+    /// Returns a vector of unique factors of this number.
+    pub fn unique_factors(&self) -> Vec<&BigInt> {
+        self.factors.iter().map(|f| f.base()).collect()
     }
 
-    /// Returns a [`HashSet`] of unique factors of this number.
-    pub fn unique_factors(&self) -> HashSet<&BigInt> {
-        let mut out = HashSet::new();
-        for f in &self.factors {
-            out.insert(f.base());
-        }
-        out
+    /// Converts `self` to a vector of unique factors of this number.
+    pub fn into_unique_factors(self) -> Vec<BigInt> {
+        self.factors
+            .into_iter()
+            .map(|f| f.base().to_owned())
+            .collect()
+    }
+
+    /// Converts `self` to a vector of [`BigInt`] containing the number's factors, with its exponents expanded.
+    pub fn into_factors_flattened(self) -> Vec<BigInt> {
+        self.factors.clone().into_iter().flatten().collect()
     }
 }
 
 impl Display for Number {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let factor_strings: Vec<String> = self.factors.iter().map(|f| f.to_string()).collect();
+        let factor_strings: Vec<String> = self
+            .clone()
+            .into_factors_flattened()
+            .iter()
+            .map(|n| n.to_string())
+            .collect();
         write!(f, "{}", factor_strings.join(" "))
     }
 }

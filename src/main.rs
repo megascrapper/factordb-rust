@@ -11,13 +11,9 @@ struct Args {
     /// Number to find its factor
     number: String,
 
-    /// Print all factors (including repeating ones) on each line
-    #[clap(long)]
-    print_factors: bool,
-
     /// Print unique factors on each line
     #[clap(long)]
-    print_unique_factors: bool,
+    unique: bool,
 
     /// Print JSON output of FactorDB API
     #[clap(long)]
@@ -43,16 +39,17 @@ fn main() {
     } else {
         match client.get(number) {
             Ok(num) => {
-                if args.print_factors {
-                    for f in num.factor_list() {
-                        println!("{}", f);
-                    }
-                } else if args.print_unique_factors {
-                    for f in num.unique_factors() {
-                        println!("{}", f);
-                    }
+                if args.unique {
+                    println!(
+                        "{}",
+                        num.into_unique_factors()
+                            .iter()
+                            .map(|f| f.to_string())
+                            .collect::<Vec<_>>()
+                            .join(" ")
+                    )
                 } else {
-                    println!("{} = {}", &args.number, num)
+                    println!("{}", num)
                 }
             }
             Err(e) => print_error(e),
