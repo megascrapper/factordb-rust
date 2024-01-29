@@ -15,7 +15,7 @@ use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
 
 use num_bigint::BigInt;
-use reqwest::Client;
+use reqwest::{Client, Response};
 use serde::{Deserialize, Serialize};
 
 use crate::utils::{deserialize_id, deserialize_string_to_bigint, deserialize_u64_to_bigint};
@@ -40,14 +40,28 @@ impl FactorDbClient {
     }
 
     pub async fn get<T: Display>(&self, number: T) -> Result<Number, FactorDbError> {
-        let url = format!("{}?query={}", ENDPOINT, number);
-        let response = self.client.get(url).send().await?;
+        let response = self.fetch_response(number).await?;
         let status = response.status();
         if status.is_success() {
             Ok(response.json().await.expect("Invalid JSON response"))
         } else {
             Err(FactorDbError::InvalidNumber)
         }
+    }
+
+    pub async fn get_json<T: Display>(&self, number: T) -> Result<String, FactorDbError> {
+        let response = self.fetch_response(number).await?;
+        let status = response.status();
+        if status.is_success() {
+            Ok(response.text().await.expect("Unable to decode response body"))
+        } else {
+            Err(FactorDbError::InvalidNumber)
+        }
+    }
+
+    async fn fetch_response <T: Display>(&self, number: T) -> reqwest::Result<Response> {
+        let url = format!("{}?query={}", ENDPOINT, number);
+        self.client.get(url).send().await
     }
 }
 
@@ -77,14 +91,28 @@ impl FactorDbBlockingClient {
     }
 
     pub fn get<T: Display>(&self, number: T) -> Result<Number, FactorDbError> {
-        let url = format!("{}?query={}", ENDPOINT, number);
-        let response = self.client.get(url).send()?;
+        let response = self.fetch_response(number)?;
         let status = response.status();
         if status.is_success() {
             Ok(response.json().expect("Invalid JSON response"))
         } else {
             Err(FactorDbError::InvalidNumber)
         }
+    }
+
+    pub fn get_json<T: Display>(&self, number: T) -> Result<String, FactorDbError> {
+        let response = self.fetch_response(number)?;
+        let status = response.status();
+        if status.is_success() {
+            Ok(response.text().expect("Unable to decode response body"))
+        } else {
+            Err(FactorDbError::InvalidNumber)
+        }
+    }
+
+    fn fetch_response <T: Display>(&self, number: T) -> reqwest::Result<reqwest::blocking::Response> {
+        let url = format!("{}?query={}", ENDPOINT, number);
+        self.client.get(url).send()
     }
 }
 
