@@ -4,8 +4,7 @@
 //! TODO: redo examples
 //!
 //! # Crate features
-//! - **blocking** - Enables blocking alternative to [`Number::get()`] and [`Number::with_client()`]
-//! which does not require async runtime
+//! - **blocking** - Enables [`FactorDbBlockingClient`] which is a blocking alternative to [`FactorDbClient`] and does not require async runtime.
 
 #![warn(missing_docs)]
 
@@ -23,6 +22,16 @@ use crate::utils::{deserialize_id, deserialize_string_to_bigint, deserialize_u64
 const ENDPOINT: &str = "http://factordb.com/api";
 
 
+
+/// Asynchronous API client for factorDB API.
+///
+/// If you need a blocking client, use [`FactorDbBlockingClient`] instead.
+///
+/// If you're making multiple requests, it's probably a good idea to reuse the client to take advantage of keep-alive
+/// connection pooling. ([Learn more](https://docs.rs/reqwest/latest/reqwest/index.html#making-a-get-request))
+///
+/// # Examples
+/// TODO
 #[derive(Debug, Clone)]
 pub struct FactorDbClient {
     client: Client,
@@ -39,6 +48,11 @@ impl FactorDbClient {
         Self { client }
     }
 
+    /// Sends a GET request to the FactorDB API for a given number. Returns an instance of [`Factor`].
+    ///
+    /// # Errors
+    /// Returns a [`FactorDbError`] if either the API request responded with an error or there is an error in the
+    /// request or parsing of the response.
     pub async fn get<T: Display>(&self, number: T) -> Result<Number, FactorDbError> {
         let response = self.fetch_response(number).await?;
         let status = response.status();
@@ -49,6 +63,11 @@ impl FactorDbClient {
         }
     }
 
+    /// Sends a GET request to the FactorDB API for a given number and returns its JSON response.
+    ///
+    /// # Errors
+    /// Returns a [`FactorDbError`] if either the API request responded with an error or there is an error in the
+    /// request or parsing of the response.
     pub async fn get_json<T: Display>(&self, number: T) -> Result<String, FactorDbError> {
         let response = self.fetch_response(number).await?;
         let status = response.status();
@@ -90,6 +109,11 @@ impl FactorDbBlockingClient {
         Self { client }
     }
 
+    /// Sends a GET request to the FactorDB API for a given number. Returns an instance of [`Factor`].
+    ///
+    /// # Errors
+    /// Returns a [`FactorDbError`] if either the API request responded with an error or there is an error in the
+    /// request or parsing of the response.
     pub fn get<T: Display>(&self, number: T) -> Result<Number, FactorDbError> {
         let response = self.fetch_response(number)?;
         let status = response.status();
@@ -100,6 +124,11 @@ impl FactorDbBlockingClient {
         }
     }
 
+    /// Sends a GET request to the FactorDB API for a given number and returns its JSON response.
+    ///
+    /// # Errors
+    /// Returns a [`FactorDbError`] if either the API request responded with an error or there is an error in the
+    /// request or parsing of the response.
     pub fn get_json<T: Display>(&self, number: T) -> Result<String, FactorDbError> {
         let response = self.fetch_response(number)?;
         let status = response.status();
