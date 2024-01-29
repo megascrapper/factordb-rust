@@ -1,7 +1,6 @@
-use ansi_term::Colour::Red;
 use clap::Parser;
 use factordb::FactorDbBlockingClient;
-use std::{env::args, fmt::Display, process::exit};
+use std::{fmt::Display, process::exit};
 
 /// Finds a factor to a number using FactorDB (http://factordb.com/)
 #[derive(Parser, Debug)]
