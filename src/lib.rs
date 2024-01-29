@@ -44,10 +44,7 @@ impl FactorDbClient {
         let response = self.client.get(url).send().await?;
         let status = response.status();
         if status.is_success() {
-            match response.json().await {
-                Ok(n) => Ok(n),
-                Err(e) => Err(e.into()),
-            }
+            Ok(response.json().await.expect("Invalid JSON response"))
         } else {
             Err(FactorDbError::InvalidNumber)
         }
@@ -84,10 +81,7 @@ impl FactorDbBlockingClient {
         let response = self.client.get(url).send()?;
         let status = response.status();
         if status.is_success() {
-            match response.json() {
-                Ok(n) => Ok(n),
-                Err(e) => Err(e.into()),
-            }
+            Ok(response.json().expect("Invalid JSON response"))
         } else {
             Err(FactorDbError::InvalidNumber)
         }
