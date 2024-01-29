@@ -15,11 +15,71 @@ use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
 
 use num_bigint::BigInt;
+use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
 use crate::utils::{deserialize_id, deserialize_string_to_bigint, deserialize_u64_to_bigint};
 
 const ENDPOINT: &str = "http://factordb.com/api";
+
+
+#[derive(Debug, Clone)]
+pub struct FactorDbClient {
+    client: Client,
+}
+
+impl FactorDbClient {
+    /// Creates a new instance of [`FactorDbClient`] with a default HTTP client.
+    pub fn new() -> Self {
+        Self::with_client(Client::new())
+    }
+
+    /// Creates a new instance of [`FactorDbClient`] with a supplied [`reqwest::Client`].
+    pub fn with_client(client: Client) -> Self {
+        Self { client }
+    }
+
+    pub async fn get<T: Display>(&self, number: T) -> Result<Number, FactorDbError> {
+        todo!()
+    }
+}
+
+impl Default for FactorDbClient {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+
+#[cfg(feature = "blocking")]
+#[derive(Debug, Clone)]
+pub struct FactorDbBlockingClient {
+    client: reqwest::blocking::Client,
+}
+
+#[cfg(feature = "blocking")]
+impl FactorDbBlockingClient {
+    /// Creates a new instance of [`FactorDbBlockingClient`] with a default HTTP client.
+    pub fn new() -> Self {
+        Self::with_client(reqwest::blocking::Client::new())
+    }
+
+    /// Creates a new instance of [`FactorDbBlockingClient`] with a supplied [`reqwest::Client`].
+    pub fn with_client(client: reqwest::blocking::Client) -> Self {
+        Self { client }
+    }
+
+    pub fn get<T: Display>(&self, number: T) -> Result<Number, FactorDbError> {
+        todo!()
+    }
+}
+
+#[cfg(feature = "blocking")]
+impl Default for FactorDbBlockingClient {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 /// A number entry in FactorDB. Contains the number itself, its status in the database as well as its
 /// factors.
