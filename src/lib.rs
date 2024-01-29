@@ -40,7 +40,17 @@ impl FactorDbClient {
     }
 
     pub async fn get<T: Display>(&self, number: T) -> Result<Number, FactorDbError> {
-        todo!()
+        let url = format!("{}?query={}", ENDPOINT, number);
+        let response = self.client.get(url).send().await?;
+        let status = response.status();
+        if status.is_success() {
+            match response.json().await {
+                Ok(n) => Ok(n),
+                Err(e) => Err(e.into()),
+            }
+        } else {
+            Err(FactorDbError::InvalidNumber)
+        }
     }
 }
 
@@ -70,7 +80,17 @@ impl FactorDbBlockingClient {
     }
 
     pub fn get<T: Display>(&self, number: T) -> Result<Number, FactorDbError> {
-        todo!()
+        let url = format!("{}?query={}", ENDPOINT, number);
+        let response = self.client.get(url).send()?;
+        let status = response.status();
+        if status.is_success() {
+            match response.json() {
+                Ok(n) => Ok(n),
+                Err(e) => Err(e.into()),
+            }
+        } else {
+            Err(FactorDbError::InvalidNumber)
+        }
     }
 }
 
