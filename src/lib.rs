@@ -10,19 +10,16 @@
 
 mod utils;
 
-use std::collections::HashSet;
-use std::fmt::{Display, Formatter};
-use std::iter::Product;
+use std::fmt::Display;
 
-use num_bigint::BigInt;
 use reqwest::{Client, Response};
-use serde::{Deserialize, Serialize};
-
-use crate::utils::{deserialize_id, deserialize_string_to_bigint, deserialize_u64_to_bigint};
 
 pub mod factor;
+pub mod number;
 
 pub use factor::Factor;
+pub use number::Number;
+pub use number::NumberStatus;
 
 const ENDPOINT: &str = "http://factordb.com/api";
 
@@ -160,111 +157,6 @@ impl Default for FactorDbBlockingClient {
     }
 }
 
-/// A number entry in FactorDB. Contains the number itself, its status in the database as well as its
-/// factors.
-#[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub struct Number {
-    #[serde(deserialize_with = "deserialize_id")]
-    id: BigInt,
-    status: NumberStatus,
-    factors: Vec<Factor>,
-}
-
-impl Number {
-    /// Returns the FactorDB ID as a [`BigInt`].
-    pub fn id(&self) -> &BigInt {
-        &self.id
-    }
-
-    /// Returns the number's status in FactorDB.
-    ///
-    /// See [`NumberStatus`] for possible values.
-    pub fn status(&self) -> &NumberStatus {
-        &self.status
-    }
-
-    /// Returns a vector of [`Factor`].
-    pub fn factors(&self) -> &Vec<Factor> {
-        &self.factors
-    }
-
-    /// Returns `true` if the number may be prime.
-    ///
-    /// Use [`Self::is_definitely_prime()`] to check if the number have been confirmed to be prime.
-    pub fn is_prime(&self) -> bool {
-        self.status == NumberStatus::DefinitelyPrime || self.status == NumberStatus::ProbablyPrime
-    }
-
-    /// Returns `true` if the number is prime.
-    ///
-    /// This only includes that have been confirmed to be prime. Use [`Self::is_prime()`] to include
-    /// numbers that may have been prime, but haven't been proven to be one.
-    pub fn is_definitely_prime(&self) -> bool {
-        self.status == NumberStatus::DefinitelyPrime
-    }
-
-    /// Returns a vector of unique factors of this number.
-    pub fn unique_factors(&self) -> Vec<&BigInt> {
-        self.factors.iter().map(|f| f.base()).collect()
-    }
-
-    /// Converts `self` to a vector of unique factors of this number.
-    pub fn into_unique_factors(self) -> Vec<BigInt> {
-        self.factors
-            .into_iter()
-            .map(|f| f.base().to_owned())
-            .collect()
-    }
-
-    /// Converts `self` to a vector of [`BigInt`] containing the number's factors, with its exponents expanded.
-    pub fn into_factors_flattened(self) -> Vec<BigInt> {
-        self.factors.clone().into_iter().flatten().collect()
-    }
-}
-
-impl Display for Number {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let factor_strings: Vec<String> = self
-            .clone()
-            .into_factors_flattened()
-            .iter()
-            .map(|n| n.to_string())
-            .collect();
-        write!(f, "{}", factor_strings.join(" "))
-    }
-}
-
-/// The status of a number in FactorDB.
-#[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub enum NumberStatus {
-    /// Composite, no factors known (C)
-    #[serde(rename = "C")]
-    NoFactorsKnown,
-    /// Composite, factors known (CF)
-    #[serde(rename = "CF")]
-    FactorsKnown,
-    /// Composite, fully factored (FF)
-    #[serde(rename = "FF")]
-    FullyFactored,
-    /// Definitely prime (P)
-    #[serde(rename = "P")]
-    DefinitelyPrime,
-    /// Probably prime (Prp)
-    #[serde(rename = "Prp")]
-    #[serde(alias = "PRP")]
-    ProbablyPrime,
-    /// Unknown (U)
-    #[serde(rename = "U")]
-    Unknown,
-    /// Just for "1" (Unit)
-    Unit,
-    /// Just for "0"
-    Zero,
-    /// This number is not in database (N)
-    #[serde(rename = "N")]
-    NotInDatabase,
-}
-
 /// Error type in this crate.
 #[derive(thiserror::Error, Debug)]
 pub enum FactorDbError {
@@ -278,7 +170,6 @@ pub enum FactorDbError {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
 
     // #[test]
     // fn get_42() {
