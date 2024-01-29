@@ -246,6 +246,10 @@ impl Factor {
         &self.1
     }
 
+    pub fn iter<'f>(&'f self) -> FactorIter {
+        FactorIter {base: &self.0, remaining_exp: self.1.clone()}
+    }
+
     pub fn into_iter(self) -> FactorIntoIter {
         FactorIntoIter {base: self.0, remaining_exp: self.1}
     }
@@ -253,7 +257,25 @@ impl Factor {
 
 impl Display for Factor {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}^{}", self.base(), self.exponent())
+        write!(f, "{}", self.iter().map(|n| n.to_string()).collect::<Vec<_>>().join(" "))
+    }
+}
+
+pub struct FactorIter<'f> {
+    base: &'f BigInt,
+    remaining_exp: BigInt
+}
+
+impl<'f> Iterator for FactorIter<'f> {
+    type Item = &'f BigInt;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.remaining_exp > BigInt::from(0) {
+            self.remaining_exp -= 1;
+            Some(self.base)
+        } else {
+            None
+        }
     }
 }
 
@@ -322,7 +344,14 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_factor_product() {
+    fn test_factor_iter() {
+        let a_million = Factor(BigInt::from(10), BigInt::from(6));
+        assert_eq!(a_million.iter().product::<BigInt>(), BigInt::from(1_000_000));
+        assert_eq!(a_million.iter().map(|n| n.clone()).collect::<Vec<_>>(), vec![BigInt::from(10), BigInt::from(10), BigInt::from(10), BigInt::from(10), BigInt::from(10), BigInt::from(10)])
+    }
+
+    #[test]
+    fn test_factor_into_iter() {
         let a_million = Factor(BigInt::from(10), BigInt::from(6));
         assert_eq!(a_million.clone().into_iter().product::<BigInt>(), BigInt::from(1_000_000));
         assert_eq!(a_million.into_iter().collect::<Vec<_>>(), vec![BigInt::from(10), BigInt::from(10), BigInt::from(10), BigInt::from(10), BigInt::from(10), BigInt::from(10)])
