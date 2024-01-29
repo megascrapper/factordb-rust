@@ -81,6 +81,7 @@ impl FactorDbClient {
         }
     }
 
+    /// Make the actual web request
     async fn fetch_response<T: Display>(&self, number: T) -> reqwest::Result<Response> {
         let url = format!("{}?query={}", ENDPOINT, number);
         self.client.get(url).send().await
@@ -93,6 +94,13 @@ impl Default for FactorDbClient {
     }
 }
 
+/// Blocking API client for FactorDB API.
+///
+/// If you're making multiple requests, it's probably a good idea to reuse the client to take advantage of keep-alive
+/// connection pooling. ([Learn more](https://docs.rs/reqwest/latest/reqwest/index.html#making-a-get-request))
+///
+/// As per [`reqwest::blocking`] restriction, this client must not be used in an async runtime. Please use
+/// [`FactorDbClient`] for that.
 #[cfg(feature = "blocking")]
 #[derive(Debug, Clone)]
 pub struct FactorDbBlockingClient {
@@ -141,6 +149,7 @@ impl FactorDbBlockingClient {
         }
     }
 
+    /// Make the actual web request
     fn fetch_response<T: Display>(
         &self,
         number: T,

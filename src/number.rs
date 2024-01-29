@@ -1,3 +1,7 @@
+//! Contains response struct for FactorDB API requests, excluding the factors (see [`crate::factor`] for that).
+//!
+//! Both [`Number`] and [`NumberStatus`] are re-exported so importing this module directly isn't necessary.
+
 use std::fmt::{Display, Formatter};
 
 use num_bigint::BigInt;

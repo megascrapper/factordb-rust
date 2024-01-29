@@ -1,3 +1,5 @@
+//! Contains struct containing a factor and its iterators.
+
 use std::fmt::{Display, Formatter};
 
 use num_bigint::BigInt;
@@ -24,6 +26,7 @@ impl Factor {
         &self.1
     }
 
+    /// Iterate over the base by the exponent value.
     pub fn iter<'f>(&'f self) -> Iter {
         Iter {
             base: &self.0,
@@ -57,6 +60,9 @@ impl IntoIterator for Factor {
     }
 }
 
+/// Iterator which repeates the base of a [`Factor`] as instances of `&BigInt`.
+///
+/// See also: [`IntoIter`]
 pub struct Iter<'f> {
     base: &'f BigInt,
     remaining_exp: BigInt,
@@ -75,6 +81,9 @@ impl<'f> Iterator for Iter<'f> {
     }
 }
 
+/// Iterator which repeates the base of a [`Factor`] as instances of `BigInt`.
+///
+/// See also: [`Iter`]
 pub struct IntoIter {
     base: BigInt,
     remaining_exp: BigInt,
