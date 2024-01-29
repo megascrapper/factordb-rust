@@ -229,7 +229,7 @@ impl Number {
 impl Display for Number {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let factor_strings: Vec<String> = self.factors.iter().map(|f| f.to_string()).collect();
-        write!(f, "{}", factor_strings.join(" + "))
+        write!(f, "{}", factor_strings.join(" "))
     }
 }
 

@@ -30,13 +30,6 @@ impl Factor {
             remaining_exp: self.1.clone(),
         }
     }
-
-    pub fn into_iter(self) -> IntoIter {
-        IntoIter {
-            base: self.0,
-            remaining_exp: self.1,
-        }
-    }
 }
 
 impl Display for Factor {
@@ -49,6 +42,18 @@ impl Display for Factor {
                 .collect::<Vec<_>>()
                 .join(" ")
         )
+    }
+}
+
+impl IntoIterator for Factor {
+    type Item = BigInt;
+    type IntoIter = IntoIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        IntoIter {
+            base: self.0,
+            remaining_exp: self.1,
+        }
     }
 }
 
