@@ -1,12 +1,12 @@
 use ansi_term::Colour::Red;
-use clap::{ArgGroup, Parser};
-use factordb::Number;
+use clap::Parser;
+use factordb::FactorDbBlockingClient;
 use std::process::exit;
 
 /// Finds a factor to a number using FactorDB (http://factordb.com/)
 #[derive(Parser, Debug)]
 #[clap(version, about, long_about = None)]
-#[clap(group(ArgGroup::new("factors").args(&["print-factors", "print-unique-factors"])))]
+// #[clap(group(ArgGroup::new("factors").args(&["print-factors", "print-unique-factors"])))]
 struct Args {
     /// Number to find its factor
     number: String,
@@ -22,7 +22,8 @@ struct Args {
 
 fn main() {
     let args = Args::parse();
-    match Number::get_blocking(args.number.clone()) {
+    let client = FactorDbBlockingClient::new();
+    match client.get(args.number.clone()) {
         Ok(num) => {
             if args.print_factors {
                 for f in num.factor_list() {
