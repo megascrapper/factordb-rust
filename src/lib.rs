@@ -12,10 +12,12 @@ mod utils;
 
 use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
+use std::iter::Product;
 
 use num_bigint::BigInt;
 use reqwest::{Client, Response};
 use serde::{Deserialize, Serialize};
+use serde_json::map::Iter;
 
 use crate::utils::{deserialize_id, deserialize_string_to_bigint, deserialize_u64_to_bigint};
 
@@ -243,11 +245,33 @@ impl Factor {
     pub fn exponent(&self) -> &BigInt {
         &self.1
     }
+
+    pub fn into_iter(self) -> FactorIntoIter {
+        FactorIntoIter {base: self.0, remaining_exp: self.1}
+    }
 }
 
 impl Display for Factor {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}^{}", self.base(), self.exponent())
+    }
+}
+
+pub struct FactorIntoIter {
+    base: BigInt,
+    remaining_exp: BigInt
+}
+
+impl Iterator for FactorIntoIter {
+    type Item = BigInt;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.remaining_exp > BigInt::from(0) {
+            self.remaining_exp -= 1;
+            Some(self.base.clone())
+        } else {
+            None
+        }
     }
 }
 
@@ -296,6 +320,13 @@ pub enum FactorDbError {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_factor_product() {
+        let a_million = Factor(BigInt::from(10), BigInt::from(6));
+        assert_eq!(a_million.clone().into_iter().product::<BigInt>(), BigInt::from(1_000_000));
+        assert_eq!(a_million.into_iter().collect::<Vec<_>>(), vec![BigInt::from(10), BigInt::from(10), BigInt::from(10), BigInt::from(10), BigInt::from(10), BigInt::from(10)])
+    }
 
     // #[test]
     // fn get_42() {
