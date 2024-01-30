@@ -292,6 +292,7 @@ mod tests {
 
     // blocking tests
     #[test]
+    #[cfg(feature = "blocking")]
     fn test_two_factors_blocking() {
         let client = FactorDbBlockingClient::new();
         let result = client.get(15).unwrap();
@@ -302,6 +303,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "blocking")]
     fn test_repeating_factors_blocking() {
         let client = FactorDbBlockingClient::new();
         let result = client.get(100).unwrap();
@@ -321,6 +323,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "blocking")]
     fn test_prime_blocking() {
         let client = FactorDbBlockingClient::new();
         let result = client.get(17).unwrap();
@@ -331,6 +334,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "blocking")]
     fn test_invalid_blocking() {
         let client = FactorDbBlockingClient::new();
         let result = client.get("AAAAA");
