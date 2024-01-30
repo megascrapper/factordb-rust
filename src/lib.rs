@@ -32,6 +32,7 @@ mod utils;
 
 use std::fmt::Display;
 
+use log::debug;
 use reqwest::{Client, Response};
 
 pub mod factor;
@@ -82,6 +83,7 @@ impl FactorDbClient {
 
     /// Creates a new instance of [`FactorDbClient`] with a supplied [`reqwest::Client`].
     pub fn with_client(client: Client) -> Self {
+        debug!("Creating async HTTP client");
         Self { client }
     }
 
@@ -121,6 +123,7 @@ impl FactorDbClient {
     /// Make the actual web request/// # #[tokio::main]
     async fn fetch_response<T: Display>(&self, number: T) -> reqwest::Result<Response> {
         let url = format!("{}?query={}", ENDPOINT, number);
+        debug!("Fetching API response from {}", url);
         self.client.get(url).send().await
     }
 }
@@ -172,6 +175,7 @@ impl FactorDbBlockingClient {
 
     /// Creates a new instance of [`FactorDbBlockingClient`] with a supplied [`reqwest::Client`].
     pub fn with_client(client: reqwest::blocking::Client) -> Self {
+        debug!("Creating blocking HTTP client");
         Self { client }
     }
 
@@ -211,6 +215,7 @@ impl FactorDbBlockingClient {
         number: T,
     ) -> reqwest::Result<reqwest::blocking::Response> {
         let url = format!("{}?query={}", ENDPOINT, number);
+        debug!("Fetching API response from {}", url);
         self.client.get(url).send()
     }
 }
