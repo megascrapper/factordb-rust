@@ -5,7 +5,6 @@ use std::{fmt::Display, process::exit};
 /// Finds a factor to a number using FactorDB (http://factordb.com/)
 #[derive(Parser, Debug)]
 #[clap(version, about, long_about = None)]
-// #[clap(group(ArgGroup::new("factors").args(&["print-factors", "print-unique-factors"])))]
 struct Args {
     /// Number to find its factor
     number: String,

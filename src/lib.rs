@@ -244,15 +244,29 @@ mod tests {
     async fn test_two_factors() {
         let client = FactorDbClient::new();
         let result = client.get(15).await.unwrap();
-        assert_eq!(vec![BigInt::from(3), BigInt::from(5)], result.into_factors_flattened())
+        assert_eq!(
+            vec![BigInt::from(3), BigInt::from(5)],
+            result.into_factors_flattened()
+        )
     }
 
     #[tokio::test]
     async fn test_repeating_factors() {
         let client = FactorDbClient::new();
         let result = client.get(100).await.unwrap();
-        assert_eq!(vec![BigInt::from(2), BigInt::from(2), BigInt::from(5), BigInt::from(5)], result.clone().into_factors_flattened());
-        assert_eq!(vec![BigInt::from(2), BigInt::from(5)], result.into_unique_factors());
+        assert_eq!(
+            vec![
+                BigInt::from(2),
+                BigInt::from(2),
+                BigInt::from(5),
+                BigInt::from(5)
+            ],
+            result.clone().into_factors_flattened()
+        );
+        assert_eq!(
+            vec![BigInt::from(2), BigInt::from(5)],
+            result.into_unique_factors()
+        );
     }
 
     #[tokio::test]
@@ -277,15 +291,29 @@ mod tests {
     fn test_two_factors_blocking() {
         let client = FactorDbBlockingClient::new();
         let result = client.get(15).unwrap();
-        assert_eq!(vec![BigInt::from(3), BigInt::from(5)], result.into_factors_flattened())
+        assert_eq!(
+            vec![BigInt::from(3), BigInt::from(5)],
+            result.into_factors_flattened()
+        )
     }
 
     #[test]
     fn test_repeating_factors_blocking() {
         let client = FactorDbBlockingClient::new();
         let result = client.get(100).unwrap();
-        assert_eq!(vec![BigInt::from(2), BigInt::from(2), BigInt::from(5), BigInt::from(5)], result.clone().into_factors_flattened());
-        assert_eq!(vec![BigInt::from(2), BigInt::from(5)], result.into_unique_factors());
+        assert_eq!(
+            vec![
+                BigInt::from(2),
+                BigInt::from(2),
+                BigInt::from(5),
+                BigInt::from(5)
+            ],
+            result.clone().into_factors_flattened()
+        );
+        assert_eq!(
+            vec![BigInt::from(2), BigInt::from(5)],
+            result.into_unique_factors()
+        );
     }
 
     #[test]

@@ -61,7 +61,8 @@ impl Number {
 
     /// Converts `self` to a vector of unique factors of this number in ascending order.
     pub fn into_unique_factors(self) -> Vec<BigInt> {
-        let mut factors: Vec<BigInt> = self.factors
+        let mut factors: Vec<BigInt> = self
+            .factors
             .into_iter()
             .map(|f| f.base().to_owned())
             .collect();
