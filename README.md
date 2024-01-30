@@ -41,10 +41,8 @@ Options:
 
 ### Add dependency
 
-Add the following to your `Cargo.toml`:
-
-```toml
-factordb = "0.3.0"
+```
+cargo add factordb
 ```
 
 ### Library usage example
