@@ -38,7 +38,7 @@ impl<'de> de::Visitor<'de> for DeserializeToBigIntVisitor {
     }
 }
 
-// Deserialize either an integer or string
+/// Deserialize either an integer or string
 pub(crate) fn deserialize_id<'de, D>(deserializer: D) -> Result<BigInt, D::Error>
 where
     D: Deserializer<'de>,
@@ -46,7 +46,7 @@ where
     deserializer.deserialize_any(DeserializeToBigIntVisitor)
 }
 
-// deserialize String to bigint ONLY
+/// deserialize String to bigint ONLY
 pub(crate) fn deserialize_string_to_bigint<'de, D>(deserializer: D) -> Result<BigInt, D::Error>
 where
     D: Deserializer<'de>,
@@ -54,7 +54,7 @@ where
     deserializer.deserialize_str(DeserializeToBigIntVisitor)
 }
 
-// deserialize u64 to bigint ONLY
+/// deserialize u64 to bigint ONLY
 pub(crate) fn deserialize_u64_to_bigint<'de, D>(deserializer: D) -> Result<BigInt, D::Error>
 where
     D: Deserializer<'de>,

@@ -1,9 +1,5 @@
 //! Rust wrapper for [FactorDB](http://factordb.com/) API.
 //!
-//!
-//! # Crate features
-//! - **blocking** - Enables [`FactorDbBlockingClient`] which is a blocking alternative to [`FactorDbClient`] and does not require async runtime.
-//!
 //! # Examples
 //!
 //! Basic usage:
@@ -26,6 +22,9 @@
 //!     Ok(())
 //!  }
 //! ```
+//!
+//! # Crate features
+//! - **blocking** - Enables [`FactorDbBlockingClient`] which is a blocking alternative to [`FactorDbClient`] and does not require async runtime.
 
 #![warn(missing_docs)]
 

@@ -91,6 +91,8 @@ impl Display for Number {
 }
 
 /// The status of a number in FactorDB.
+///
+/// More information: <http://factordb.com/status.html>
 #[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum NumberStatus {
     /// Composite, no factors known (C)
