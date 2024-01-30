@@ -17,7 +17,7 @@ cargo install factordb --all-features
 ```
 git clone https://github.com/megascrapper/factordb-rust
 cd factordb-rust
-cargo build
+cargo build --all-features
 ```
 
 ### Command line usage
