@@ -1,10 +1,31 @@
 //! Rust wrapper for [FactorDB](http://factordb.com/) API.
 //!
-//! # Examples
-//! TODO: redo examples
 //!
 //! # Crate features
 //! - **blocking** - Enables [`FactorDbBlockingClient`] which is a blocking alternative to [`FactorDbClient`] and does not require async runtime.
+//!
+//! # Examples
+//!
+//! Basic usage:
+//!
+//! ```
+//! use std::error::Error;
+//! use factordb::FactorDbClient;
+//! use num_bigint::BigInt; // All numeric values in the result object are of this type
+//!
+//! #[tokio::main]
+//! async fn main() -> Result<(), Box<dyn Error>> {
+//!     // Initialise the client
+//!     let client = FactorDbClient::new();
+//!
+//!     // Make requests
+//!     let forty_two = client.get(42).await?;
+//!     let expect_factors: Vec<BigInt> = vec![2, 3, 7].into_iter().map(|n| BigInt::from(n)).collect();
+//!     assert_eq!(forty_two.into_factors_flattened(), expect_factors);
+//!
+//!     Ok(())
+//!  }
+//! ```
 
 #![warn(missing_docs)]
 
@@ -31,7 +52,24 @@ const ENDPOINT: &str = "http://factordb.com/api";
 /// connection pooling. ([Learn more](https://docs.rs/reqwest/latest/reqwest/index.html#making-a-get-request))
 ///
 /// # Examples
-/// TODO
+///
+/// ```
+/// # use std::error::Error;
+/// use factordb::FactorDbClient;
+/// use num_bigint::BigInt; // All numeric values in the result object are of this type
+///
+/// # #[tokio::main]
+/// # async fn main() -> Result<(), Box<dyn Error>> {
+/// // Initialise the client
+/// let client = FactorDbClient::new();
+///
+/// // Make requests
+/// let forty_two = client.get(42).await?;
+/// let expect_factors: Vec<BigInt> = vec![2, 3, 7].into_iter().map(|n| BigInt::from(n)).collect();
+/// assert_eq!(forty_two.into_factors_flattened(), expect_factors);
+/// #
+/// #   Ok(())
+/// # }
 #[derive(Debug, Clone)]
 pub struct FactorDbClient {
     client: Client,
@@ -81,7 +119,7 @@ impl FactorDbClient {
         }
     }
 
-    /// Make the actual web request
+    /// Make the actual web request/// # #[tokio::main]
     async fn fetch_response<T: Display>(&self, number: T) -> reqwest::Result<Response> {
         let url = format!("{}?query={}", ENDPOINT, number);
         self.client.get(url).send().await
@@ -101,6 +139,25 @@ impl Default for FactorDbClient {
 ///
 /// As per [`reqwest::blocking`] restriction, this client must not be used in an async runtime. Please use
 /// [`FactorDbClient`] for that.
+///
+/// # Examples
+///
+/// ```
+/// # use std::error::Error;
+/// use factordb::FactorDbBlockingClient;
+/// use num_bigint::BigInt; // All numeric values in the result object are of this type
+///
+/// fn main() -> Result<(), Box<dyn Error>> {
+/// // Initialise the client
+/// let client = FactorDbBlockingClient::new();
+///
+/// // Make requests
+/// let forty_two = client.get(42)?;
+/// let expect_factors: Vec<BigInt> = vec![2, 3, 7].into_iter().map(|n| BigInt::from(n)).collect();
+/// assert_eq!(forty_two.into_factors_flattened(), expect_factors);
+/// #
+/// #   Ok(())
+/// # }
 #[cfg(feature = "blocking")]
 #[derive(Debug, Clone)]
 pub struct FactorDbBlockingClient {
