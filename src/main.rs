@@ -1,11 +1,12 @@
 use clap::Parser;
 use factordb::FactorDbBlockingClient;
+use human_panic::setup_panic;
 use std::{fmt::Display, process::exit};
 
 /// Finds a factor to a number using FactorDB (http://factordb.com/)
 #[derive(Parser, Debug)]
 #[clap(version, about, long_about = None)]
-struct Args {
+struct Cli {
     /// Number to find its factor
     number: String,
 
@@ -26,10 +27,13 @@ fn print_error<T: Display>(msg: T) -> ! {
 }
 
 fn main() {
-    let args = Args::parse();
+    env_logger::init();
+    setup_panic!();
+    let cli = Cli::parse();
+    let number = cli.number.clone();
+
     let client = FactorDbBlockingClient::new();
-    let number = args.number.clone();
-    if args.json {
+    if cli.json {
         match client.get_json(number) {
             Ok(text) => println!("{}", text),
             Err(e) => print_error(e),
@@ -37,7 +41,7 @@ fn main() {
     } else {
         match client.get(number) {
             Ok(num) => {
-                if args.unique {
+                if cli.unique {
                     println!(
                         "{}",
                         num.into_unique_factors()
