@@ -60,7 +60,7 @@ impl IntoIterator for Factor {
     }
 }
 
-/// Iterator which repeates the base of a [`Factor`] as instances of `&BigInt`.
+/// Iterator which repeats the base of a [`Factor`] by the number of exponent as instances of `&BigInt`.
 ///
 /// See also: [`IntoIter`]
 pub struct Iter<'f> {
@@ -81,7 +81,7 @@ impl<'f> Iterator for Iter<'f> {
     }
 }
 
-/// Iterator which repeates the base of a [`Factor`] as instances of `BigInt`.
+/// Iterator which repeats the base of a [`Factor`] by the number of exponent as instances of `BigInt`.
 ///
 /// See also: [`Iter`]
 pub struct IntoIter {
