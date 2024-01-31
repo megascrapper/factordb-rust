@@ -1,5 +1,10 @@
 # factordb-rust
 
+[![Crates.io Version](https://img.shields.io/crates/v/factordb?style=flat-square)](https://crates.io/crates/factordb)
+[![Crates.io License](https://img.shields.io/crates/l/factordb?style=flat-square)](#license)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/megascrapper/factordb-rust/build.yml?style=flat-square)
+](https://github.com/megascrapper/factordb-rust/actions/workflows/build.yml)
+
 Rust wrapper for [FactorDB](http://factordb.com/) API.
 
 Includes a library as well as a simple command line app.
