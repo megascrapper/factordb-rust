@@ -68,7 +68,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
 ### Documentation
 
-<https://docs.rs/factordb/0.3.0>
+<https://docs.rs/factordb/latest/factordb/>
 
 ## License
 
