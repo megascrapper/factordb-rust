@@ -2,44 +2,72 @@ name: Build and test
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "gh-actions/**" ]
   pull_request:
-    branches: [ "master" ]
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
   build:
-    # runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
+
           - target: x86_64-apple-darwin
-            os: macos-latest
+            os: macos-14
+          - target: aarch64-apple-darwin
+            os: macos-14
           - target: x86_64-pc-windows-msvc
+            os: windows-latest
+          - target: aarch64-pc-windows-msvc
             os: windows-latest
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
+    - name: Add target
+      run: rustup target add ${{ matrix.target }}
     - name: Lint
-      run: cargo clippy --all-features --release --verbose
+      run: cargo clippy --all-features --release --target ${{ matrix.target }}
     - name: Build
-      run: cargo build --all-features --release --verbose
+      run: cargo build --all-features --release --target ${{ matrix.target }}
     - name: Run tests
-      run: cargo test --all-features --release --verbose
-    - name: Build documentation
-      # temporary workaround due to issues with upload-artifact on windows
-      # https://github.com/actions/upload-artifact/issues/485
-      if: ${{ matrix.os != 'windows-latest' }}
-      run: cargo doc --all-features --release --verbose
+      # x86_64 windows can't execute arm64 binaries
+      if: ${{ matrix.target != 'aarch64-pc-windows-msvc' }}
+      run: cargo test --all-features --release --target ${{ matrix.target }}
     - name: Save files
       uses: actions/upload-artifact@v4
       with:
         name: factordb-${{ matrix.target }}
         path: |
-          target/release/factordb
-          target/release/factordb.exe
-          target/doc
+          target/**/release/factordb
+          target/**/release/factordb.exe
+  # build targets using cross
+  cross_build:
+    strategy:
+      matrix:
+        include:
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-latest
+          - target: armv7-unknown-linux-gnueabihf
+            os: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install cross
+        run: cargo install cross
+      - name: Lint
+        run: cross clippy --all-features --release --target ${{ matrix.target }}
+      - name: Build
+        run: cross build --all-features --release --target ${{ matrix.target }}
+      - name: Run tests
+        run: cross test --all-features --release --target ${{ matrix.target }}
+      - name: Save files
+        uses: actions/upload-artifact@v4
+        with:
+          name: factordb-${{ matrix.target }}
+          path: |
+            target/**/release/factordb
+            target/**/release/factordb.exe
