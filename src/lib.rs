@@ -25,6 +25,7 @@
 //!
 //! # Crate features
 //! - **blocking** - Enables [`FactorDbBlockingClient`] which is a blocking alternative to [`FactorDbClient`] and does not require async runtime.
+//! - **cli** - Command line app. This feature does not add any extra library functionality.
 
 #![warn(missing_docs)]
 
